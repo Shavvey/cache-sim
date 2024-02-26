@@ -1,13 +1,15 @@
 #include <stdlib.h>
 #include "file_reader.h"
+// configuration file is the first passed arg
 #define CONFIG_FILE 1
+// trace file is the second passed arg
 #define TRACE_FILE 2
 
 int main(int argc, char *argv[]) {
   // argc will track to see if a arguments have been passed 
   // 1: name of textfile
   // 2: name of cache config file
-  // 3: name of load-store instruction trace file?
+  // 3: name of load-store instruction trace file
   if(argc > 2 ){
     char *config_fname = argv[CONFIG_FILE];
     char *trace_fname = argv[TRACE_FILE];
@@ -15,7 +17,9 @@ int main(int argc, char *argv[]) {
     printf("Trace file: %s\n",trace_fname);
     FILE* cfile = get_file(config_fname);
     FILE* tfile = get_file(trace_fname);
+    // grab line of text
     const char *line = read_line(cfile);
+    // print out line of text
     printf("line: %s\n",line);
 
   }else{

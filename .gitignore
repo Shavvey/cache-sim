@@ -1,3 +1,4 @@
 .DS_Store
 # ingnore all object file inside repo
 *.o
+.pdf

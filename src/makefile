@@ -1,4 +1,4 @@
-# compiler of chocie plus the flags used during compilation
+# compiler of choice plus the flags used during compilation
 CC=gcc
 CFLAGS=-W -Wall -g
 DEPS = file_reader.h
@@ -17,4 +17,8 @@ cache-sim: $(OBJ)
 clean:
 	rm -f $(OBJ) core
 
+# test cache-sim program using sample config and trace
+.PHONY: test
+test: ../cache-sim
+	../cache-sim ../sample.conf ../traces/gcc.trace
 
