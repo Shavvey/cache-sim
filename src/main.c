@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "file_reader.h"
-#define CONFIG_FILE 2
-#define TRACE_FILE 3
+#define CONFIG_FILE 1
+#define TRACE_FILE 2
 
 int main(int argc, char *argv[]) {
   // argc will track to see if a arguments have been passed 
@@ -16,6 +16,7 @@ int main(int argc, char *argv[]) {
     FILE* cfile = get_file(config_fname);
     FILE* tfile = get_file(trace_fname);
     const char *line = read_line(cfile);
+    printf("line: %s\n",line);
 
   }else{
     // print this error message if we aren't given the proper amount of args
