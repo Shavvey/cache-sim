@@ -8,8 +8,9 @@ OBJ = main.o file_reader.o
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
+# make cache-sim final executable, put this inside the parent dir
 cache-sim: $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o ../cache-sim $^ $(CFLAGS)
 
 # clean by deleting all object files and core files
 .PHONY: clean
