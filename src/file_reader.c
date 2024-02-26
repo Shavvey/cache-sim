@@ -9,7 +9,7 @@ ssize_t bytes;
 char *line_buf;
 size_t len = 0;
 
-FILE *getFile(char *fname){
+FILE *get_file(char *fname){
   // open file in read mode
   FILE *fp = fopen(fname,"r");  
   if(fp == NULL){
@@ -19,7 +19,7 @@ FILE *getFile(char *fname){
   }
   return fp;
 }
-
+// handle byte read error file ther are any
 void handle_byte_err(ssize_t bytes, FILE *file){
   if(bytes == -1){
     perror("Error: problem occured when reading textfile");
@@ -31,6 +31,7 @@ void handle_byte_err(ssize_t bytes, FILE *file){
 const char *read_line(FILE *file){
   if(file == NULL){
     perror("File pointer is not initialized!");
+    // exit out of program
     exit(EXIT_FAILURE);
   }
   int length = MAX_LEN;
