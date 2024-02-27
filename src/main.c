@@ -1,6 +1,5 @@
-#include "cache.h"
-#include "file_reader.h"
-#include "trace.h"
+#include "sim.h"
+#include <stdio.h>
 #include <stdlib.h>
 // configuration file is the first passed arg
 #define CONFIG_FILE 1
@@ -15,8 +14,7 @@ int main(int argc, char *argv[]) {
   if (argc > 2) {
     char *config_fname = argv[CONFIG_FILE];
     char *trace_fname = argv[TRACE_FILE];
-    FILE *file = get_file(trace_fname);
-    print_all(file);
+    load_cache_config(config_fname);
   } else {
     // print this error message if we aren't given the proper amount of args
     const char *ERROR =

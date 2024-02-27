@@ -32,6 +32,6 @@ struct cache_t get_cache_config(char *fname);
 void print_cache_config(struct cache_t *cache);
 bool check_2pow(float val);
 int find_pow2(int val, int iter);
-struct cache_addr_d calculate_cache_dimensions(struct cache_t *cache);
+struct cache_addr_d calculate_cache_dimensions(struct cache_t cache);
 void print_cache_dimensions(struct cache_addr_d);
 #endif

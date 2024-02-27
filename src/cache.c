@@ -129,10 +129,11 @@ int find_pow2(int val, int iter) {
 }
 
 // determine the cache address dimnesions based on cache config
-struct cache_addr_d calculate_cache_dimensions(struct cache_t *cache) {
+struct cache_addr_d calculate_cache_dimensions(struct cache_t cache) {
   struct cache_addr_d addr_d;
-  addr_d.offset = find_pow2(cache->block_size, 0);
-  addr_d.set_index = find_pow2(cache->associativity, 0);
+  addr_d.offset = find_pow2(cache.block_size, 0);
+  addr_d.set_index = find_pow2(
+      cache.cache_size * 1024 / (cache.block_size * cache.associativity), 0);
   addr_d.tag = ADDR_SIZE - addr_d.offset - addr_d.set_index;
   return addr_d;
 }
