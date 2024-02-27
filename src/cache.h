@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdint.h>
 // TYPE DECLARATIONS
 // represent replacement policy
@@ -16,3 +17,5 @@ struct cache_t {
 // FUNCTION DECLARATIONS
 struct cache_t get_cache_config(char *fname);
 void print_cache_config(struct cache_t *cache);
+bool check_2pow(float val);
+int find_pow2(int val, int iter);

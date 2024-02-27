@@ -1,6 +1,8 @@
 #include "file_reader.h"
+#include <stdbool.h>
 #include <stdint.h>
-
+// address size used for instructions in trace is 32 bits
+#define ADDR_SIZE 32
 /* cache_t captures the all the important information of the cache setup
  * INCLUDES THE FOLLOWING:
  * LINE SIZE: Specifies the line (block) size for the cache in bytes. Should be
@@ -32,6 +34,16 @@ struct cache_t {
   enum WRITE_ALLOC write_alloc;
 };
 
+// used to group together the cache address dimensions
+struct cache_addr_d {
+  // used to compare different cache blocks
+  uint32_t tag;
+  // used to indicate what associative set the cache block belongs to
+  uint32_t set_index;
+  // indicates the size of the cache, part of the lower bits
+  uint32_t offset;
+};
+
 // get cache config from file, use the file_reader.c libraries created
 struct cache_t get_cache_config(char *fname) {
   struct cache_t cache;
@@ -61,6 +73,7 @@ struct cache_t get_cache_config(char *fname) {
   return cache;
 }
 
+// prints back the cache config, just for testing purposes
 void print_cache_config(struct cache_t *cache) {
   printf("Block size: %i Bytes\n", cache->block_size);
   printf("N-way associativity; %i\n", cache->associativity);
@@ -79,13 +92,38 @@ void print_cache_config(struct cache_t *cache) {
   printf("Cycle penalty for cache miss: %i\n", cache->miss_penalty);
   switch (cache->write_alloc) {
   case NO:
-    printf("Writes allocated inside cache: NO\n");
+    printf("Writes allocated inside cache: NO (no-write-allocate)\n");
     break;
   case YES:
-    printf("Writes allocated inside cache: YES\n");
+    printf("Writes allocated inside cache: YES (write-allocate)\n");
     break;
   default:
     printf("Couldn't match write allocate policy!\n");
     break;
+  }
+}
+// recursive function to check if a val is a power of two,
+// integer have to be type casted to floats before using
+// this is used to tell us whether the config is correct
+bool check_2pow(float val) {
+  if (val == 1) {
+    return true;
+  } else if (val < 1) {
+    return false;
+  } else {
+    return check_2pow(val / 2);
+  }
+}
+
+// after we know config is correct,
+// what power of two gets the val passed as the arg
+// iteration arg should be set to zero when first invoked
+int find_pow2(int val, int iter) {
+  if (val == 1) {
+    return iter;
+  } else {
+    // increment iteration count
+    iter++;
+    return find_pow2(val, iter);
   }
 }
