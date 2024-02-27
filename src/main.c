@@ -16,8 +16,7 @@ int main(int argc, char *argv[]) {
     char *config_fname = argv[CONFIG_FILE];
     char *trace_fname = argv[TRACE_FILE];
     FILE *file = get_file(trace_fname);
-    struct inst_t inst = instruction_from_file(file);
-    print_instruction(inst);
+    print_all(file);
   } else {
     // print this error message if we aren't given the proper amount of args
     const char *ERROR =

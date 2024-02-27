@@ -3,12 +3,6 @@
 
 // max line for reading file
 #define MAX_LEN 128
-// character buffer to grab each line in file
-// pointer to open file
-ssize_t bytes;
-char *line_buf;
-size_t len = 0;
-
 FILE *get_file(char *fname) {
   // open file in read mode
   FILE *fp = fopen(fname, "r");
@@ -30,6 +24,12 @@ void handle_byte_err(ssize_t bytes, FILE *file) {
 }
 
 const char *read_line(FILE *file) {
+  // character buffer to grab each line in file
+  // pointer to open file
+  ssize_t bytes;
+  char *line_buf;
+  size_t len = 0;
+
   if (file == NULL) {
     perror("File pointer is not initialized");
     // exit out of program

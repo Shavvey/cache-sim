@@ -1,3 +1,5 @@
+#ifndef TRACE_H
+#define TRACE_H
 #include <stdint.h>
 #include <stdio.h>
 // TYPE DECLARATIONS
@@ -25,3 +27,5 @@ struct inst_queue {
 // FUNCTION DECLARATIONS
 struct inst_t instruction_from_file(FILE *file);
 void print_instruction(struct inst_t inst);
+void print_all_inst(FILE *file);
+#endif

@@ -1,3 +1,5 @@
+#ifndef CACHE_H
+#define CACHE_H
 #include <stdbool.h>
 #include <stdint.h>
 // TYPE DECLARATIONS
@@ -32,3 +34,4 @@ bool check_2pow(float val);
 int find_pow2(int val, int iter);
 struct cache_addr_d calculate_cache_dimensions(struct cache_t *cache);
 void print_cache_dimensions(struct cache_addr_d);
+#endif

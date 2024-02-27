@@ -23,8 +23,11 @@ struct inst_t {
 // create an instruction queue to read from
 // this is the final data structure we will parse the trace file into
 struct inst_queue {
-  struct inst_t *next_inst;
+  struct inst_t front, rear;
+  struct ins_t *array;
   struct inst_t inst_t;
+  unsigned capacity;
+  unsigned size;
 };
 
 // get instruction from file, uses file_reader functions
@@ -60,4 +63,11 @@ void print_instruction(struct inst_t inst) {
   }
   printf("Address: %x\n", inst.address);
   printf("Instructions since last memory access: %u\n", inst.num_inst);
+}
+
+void print_all_inst(FILE *file) {
+  while (!feof(file)) {
+    struct inst_t inst = instruction_from_file(file);
+    print_instruction(inst);
+  }
 }
