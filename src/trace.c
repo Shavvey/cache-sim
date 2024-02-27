@@ -34,7 +34,7 @@ struct inst_t instruction_from_file(FILE *file) {
   char access_type;
   int32_t address;
   uint32_t num_inst;
-  sscanf(line, "%c%d%u", &access_type, &address, &num_inst);
+  sscanf(line, "%c %x %u", &access_type, &address, &num_inst);
   if (access_type == LOAD_INST) {
     instruction.access_type = LOAD;
   } else if (access_type == STORE_INST) {
@@ -45,7 +45,8 @@ struct inst_t instruction_from_file(FILE *file) {
   return instruction;
 }
 
-void print_instructino(struct inst_t inst) {
+// print out the read instruction, for testing purposes
+void print_instruction(struct inst_t inst) {
   switch (inst.access_type) {
   case LOAD:
     printf("Instruction type: LOAD\n");
@@ -53,5 +54,10 @@ void print_instructino(struct inst_t inst) {
   case STORE:
     printf("Instruction type: STORE\n");
     break;
+  default:
+    printf("Couldn't match instruction type\n");
+    break;
   }
+  printf("Address: %x\n", inst.address);
+  printf("Instructions since last memory access: %u\n", inst.num_inst);
 }

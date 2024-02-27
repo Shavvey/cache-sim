@@ -1,5 +1,6 @@
 #include "cache.h"
 #include "file_reader.h"
+#include "trace.h"
 #include <stdlib.h>
 // configuration file is the first passed arg
 #define CONFIG_FILE 1
@@ -14,12 +15,9 @@ int main(int argc, char *argv[]) {
   if (argc > 2) {
     char *config_fname = argv[CONFIG_FILE];
     char *trace_fname = argv[TRACE_FILE];
-    printf("Config file: %s\n", config_fname);
-    printf("Trace file: %s\n", trace_fname);
-    struct cache_t cache = get_cache_config(config_fname);
-    print_cache_config(&cache);
-    struct cache_addr_d addr = calculate_cache_dimensions(&cache);
-    print_cache_dimensions(addr);
+    FILE *file = get_file(trace_fname);
+    struct inst_t inst = instruction_from_file(file);
+    print_instruction(inst);
   } else {
     // print this error message if we aren't given the proper amount of args
     const char *ERROR =
