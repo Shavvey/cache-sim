@@ -9,35 +9,34 @@ ssize_t bytes;
 char *line_buf;
 size_t len = 0;
 
-FILE *get_file(char *fname){
+FILE *get_file(char *fname) {
   // open file in read mode
-  FILE *fp = fopen(fname,"r");  
-  if(fp == NULL){
-    perror("Error: problem opening file");
+  FILE *fp = fopen(fname, "r");
+  if (fp == NULL) {
+    perror("Problem occurred when opening a file");
     // exit out of program
     exit(EXIT_FAILURE);
   }
+  // return no a
   return fp;
 }
 // handle byte read error file ther are any
-void handle_byte_err(ssize_t bytes, FILE *file){
-  if(bytes == -1){
-    perror("Error: problem occured when reading textfile");
+void handle_byte_err(ssize_t bytes, FILE *file) {
+  if (bytes == -1) {
+    perror("Problem occured reading a bye");
     fclose(file);
     exit(EXIT_FAILURE);
   }
 }
 
-const char *read_line(FILE *file){
-  if(file == NULL){
-    perror("File pointer is not initialized!");
+const char *read_line(FILE *file) {
+  if (file == NULL) {
+    perror("File pointer is not initialized");
     // exit out of program
     exit(EXIT_FAILURE);
   }
   int length = MAX_LEN;
-  bytes = getline(&line_buf,&len,file);
-  handle_byte_err(bytes,file);
+  bytes = getline(&line_buf, &len, file);
+  handle_byte_err(bytes, file);
   return line_buf;
 }
-
-

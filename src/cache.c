@@ -31,3 +31,61 @@ struct cache_t {
   uint32_t miss_penalty;
   enum WRITE_ALLOC write_alloc;
 };
+
+// get cache config from file, use the file_reader.c libraries created
+struct cache_t get_cache_config(char *fname) {
+  struct cache_t cache;
+  // string that stores each line of config file
+  const char *line;
+  // get the pointer to the config file, passed through as a param
+  FILE *file = get_file(fname);
+  // read block size
+  line = read_line(file);
+  sscanf(line, "%i", &cache.block_size);
+  // read associativity (n-way set associativity)
+  line = read_line(file);
+  sscanf(line, "%i", &cache.associativity);
+  // read the total cache size
+  line = read_line(file);
+  sscanf(line, "%i", &cache.cache_size);
+  // read replacement policy
+  line = read_line(file);
+  sscanf(line, "%d", &cache.rep_policy);
+  // read miss penalty
+  line = read_line(file);
+  sscanf(line, "%i", &cache.miss_penalty);
+  // read write allocation policy (no-write-allocate vs write-allocate)
+  line = read_line(file);
+  sscanf(line, "%d", &cache.write_alloc);
+  // return the newly created cache, parsed from file
+  return cache;
+}
+
+void print_cache_config(struct cache_t *cache) {
+  printf("Block size: %i Bytes\n", cache->block_size);
+  printf("N-way associativity; %i\n", cache->associativity);
+  printf("Total cache size: %i KB\n", cache->cache_size);
+  switch (cache->rep_policy) {
+  case RANDOM:
+    printf("Eviction policty: Random\n");
+    break;
+  case FIFO:
+    printf("Eviction policy: FIFO\n");
+    break;
+  default:
+    printf("Couldn't match eviction policy\n");
+    break;
+  }
+  printf("Cycle penalty for cache miss: %i\n", cache->miss_penalty);
+  switch (cache->write_alloc) {
+  case NO:
+    printf("Writes allocated inside cache: NO\n");
+    break;
+  case YES:
+    printf("Writes allocated inside cache: YES\n");
+    break;
+  default:
+    printf("Couldn't match write allocate policy!\n");
+    break;
+  }
+}

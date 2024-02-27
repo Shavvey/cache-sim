@@ -1,8 +1,8 @@
 # compiler of choice plus the flags used during compilation
 CC=gcc
 CFLAGS=-W -Wall -g
-DEPS = file_reader.h
-OBJ = main.o file_reader.o
+DEPS = file_reader.h cache.h
+OBJ = main.o file_reader.o cache.o
 
 # make each object file from dependencies and sources
 %.o: %.c $(DEPS)
