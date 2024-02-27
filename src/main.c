@@ -18,16 +18,18 @@ int main(int argc, char *argv[]) {
     printf("Trace file: %s\n", trace_fname);
     struct cache_t cache = get_cache_config(config_fname);
     print_cache_config(&cache);
+    struct cache_addr_d addr = calculate_cache_dimensions(&cache);
+    print_cache_dimensions(addr);
   } else {
     // print this error message if we aren't given the proper amount of args
     const char *ERROR =
         "Need two arguments passed to run the cache simulator:\n\
     1) the name of the config file\n\
     2) the name of the trace file\n";
-    // print out the
+    // print out the error
     perror(ERROR);
+    return EXIT_FAILURE;
   }
-
   // exit out of program with success code
   return EXIT_SUCCESS;
 }

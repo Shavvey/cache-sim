@@ -124,6 +124,21 @@ int find_pow2(int val, int iter) {
   } else {
     // increment iteration count
     iter++;
-    return find_pow2(val, iter);
+    return find_pow2(val / 2, iter);
   }
+}
+
+// determine the cache address dimnesions based on cache config
+struct cache_addr_d calculate_cache_dimensions(struct cache_t *cache) {
+  struct cache_addr_d addr_d;
+  addr_d.offset = find_pow2(cache->block_size, 0);
+  addr_d.set_index = find_pow2(cache->associativity, 0);
+  addr_d.tag = ADDR_SIZE - addr_d.offset - addr_d.set_index;
+  return addr_d;
+}
+
+void print_cache_dimensions(struct cache_addr_d addr_d) {
+  printf("Number of bits for Tag: %u\n", addr_d.tag);
+  printf("Number of bits for Set Index: %u\n", addr_d.set_index);
+  printf("Numeber of bits for Offset: %u\n", addr_d.offset);
 }
