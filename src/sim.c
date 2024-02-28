@@ -1,5 +1,5 @@
 #include "cache.h"
-#include "file_reader.h"
+#include "file.h"
 #include <stdlib.h>
 #include <time.h>
 #define BLOCK_SIZE sizeof(struct blocks_t *)
@@ -18,7 +18,8 @@ uint32_t LOAD_MISS = 0;
 uint32_t STORE_MISS = 0;
 uint32_t LOAD_HIT = 0;
 uint32_t STORE_HIT = 0;
-uint32_t NUM_OTHER_INTS = 0;
+uint32_t NUM_OTHER_INST = 0;
+uint32_t MEM_INST_READ = 0;
 // track evicts too
 uint32_t EVICTS = 0;
 // struct to represent each block in the set
@@ -238,27 +239,31 @@ void cache_sim(char *trace_fname) {
     }
   }
   FILE *trace_file = get_file(trace_fname, "r");
-  int read = 0;
   int flag = 1;
   // whiles bytes have been successfully read and the file has not ended, keep
   // running the cache sim loop
   while (flag && !feof(trace_file)) {
     // get the instruction from the trace file
     struct inst_t inst = instruction_from_file(trace_file);
+    // record how other instructions were executed that we're not memory
+    // references
+    NUM_OTHER_INST += inst.num_inst;
     // **PROCESSING THE INSTRUCTION**
     // if read actually returns some bytes, then process the read instruction
     flag = (bytes > 0);
     if (flag) {
-      read++;
+      MEM_INST_READ++;
       uint32_t set_bits = get_set_bits(addr_d, inst.address);
       // use set bits to index into the cache
       struct set_t *set = cache[set_bits].set;
       // search the set for the given tag and decoded instruction
       bool in_set = search_set(set, inst.address);
+      // check to see if there is write allocate
+      bool is_write = check_policy(cache_conf.write_alloc, inst.access_type);
       // cache hit! increment hit counter
       if (in_set) {
         record_hit(inst.access_type);
-      } else if (check_policy(cache_conf.write_alloc, inst.access_type)) {
+      } else if (is_write) {
         record_miss(inst.access_type);
         // handle the miss, either eviction or creation of new cache block
         handle_miss(set, cache_conf, inst.address);
@@ -270,13 +275,13 @@ void cache_sim(char *trace_fname) {
     }
   }
   fclose(file);
-  printf("Lines read: %d\n", read);
-  printf("HITS: %d\n", TOTAL_HITS);
-  printf("MISSES: %d\n", TOTAL_MISSES);
+  printf("INSTRUCTIONS READ: %d\n", MEM_INST_READ);
+  printf("HITS: %d\n", STORE_HIT + LOAD_HIT);
+  printf("MISSES: %d\n", STORE_MISS + LOAD_MISS);
   printf("LOAD MISSES: %d\n", LOAD_MISS);
   printf("STORE MISSES: %d\n", STORE_MISS);
   printf("STORE HITS: %d\n", STORE_HIT);
   printf("LOAD HITS: %d\n", LOAD_HIT);
+  printf("NUMBER OF OTHER EXECUTED INSTRUCTIONS: %d\n", NUM_OTHER_INST);
   printf("EVICTS: %d\n", EVICTS);
-  print_cache_dimensions(addr_d);
 }

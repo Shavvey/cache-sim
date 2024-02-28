@@ -1,4 +1,4 @@
-#include "file_reader.h"
+#include "file.h"
 #include <stdio.h>
 #include <stdlib.h>
 // max line for reading file

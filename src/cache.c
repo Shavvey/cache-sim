@@ -1,5 +1,5 @@
 #include "cache.h"
-#include "file_reader.h"
+#include "file.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
