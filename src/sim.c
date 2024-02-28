@@ -11,7 +11,11 @@ struct cache_t cache_conf;
 struct cache_addr_d addr_d;
 uint32_t num_sets;
 uint32_t num_blocks;
-
+// trackers for hits and misses
+uint32_t HITS = 0;
+uint32_t MISSES = 0;
+// track evicts too
+uint32_t EVICTS = 0;
 // struct to represent each block in the set
 struct blocks_t {
   // holds the 32 bit address
@@ -65,15 +69,85 @@ void load_cache_config(char *config_fname) {
   printf("Number of sets: %d\n", num_sets);
   printf("Number of blocks: %d\n", num_blocks);
 }
-struct blocks_t *create_block() {
+struct blocks_t *create_block(uint32_t addr) {
   struct blocks_t *block = (struct blocks_t *)malloc(BLOCK_SIZE);
   if (block != NULL) {
     // set link to be null explicitly
     block->next = NULL;
+    block->addr = addr;
   } else {
     perror("Error allocating memory for block");
   }
   return block;
+}
+void handle_eviction(struct set_t *set, enum REP_POLICY policy, uint32_t addr) {
+  struct blocks_t *block = create_block(addr);
+  switch (policy) {
+  case FIFO:
+    EVICTS++;
+    printf("FIFO Invoked!\n");
+    // add old head's next pointer to the block pointer
+    block->next = set->blocks;
+    set->blocks = block;
+    // use head and prev pointers to remove from linked list
+    struct blocks_t *head = set->blocks;
+    struct blocks_t *prev;
+    // remove the last block
+    while (head->next != NULL) {
+      prev = head;
+      // goto next block
+      head = head->next;
+    }
+    prev->next = NULL;
+    // the last block inside linked list
+    free(head);
+    break;
+  case RANDOM:
+    break;
+  }
+}
+// search a set for a given addhandle bytes erroresress by looping through each
+// block
+bool search_set(struct set_t *set, uint32_t addr) {
+  struct blocks_t *head = set->blocks;
+  while (head != NULL) {
+    // compare tag of given instruction address with given block address in set
+    if (compare_tag(addr_d, addr, set->blocks->addr)) {
+      // NOTE: just for testing purposes
+      printf("Tag matched!\n");
+      return 1;
+    }
+    // traverse linked list of blocks
+    head = head->next;
+  }
+  // otherwise return false
+  return 0;
+}
+void handle_miss(struct set_t *set, struct cache_t cache_conf, uint32_t addr) {
+  printf("Handle miss!\n");
+  if (set->blocks == NULL) {
+    set->blocks = create_block(addr);
+    set->length++;
+    // early return since blocks are already empty
+    return;
+  }
+  // NO EVICTION POLICY IS NEEDED
+  if (set->length < cache_conf.associativity) {
+    struct blocks_t *head = set->blocks;
+    // insert new block into list
+    while (head->next != NULL) {
+      // traverse link list until we reach the end
+      head = head->next;
+    }
+    printf("Out!\n");
+    // create new block
+    head->next = create_block(addr);
+    // increment length
+    set->length++;
+  } else {
+    printf("Length: %d\n", set->length);
+    handle_eviction(set, cache_conf.rep_policy, addr);
+  }
 }
 // after loading in cache config we can finally perform the cache simulation
 void cache_sim(char *trace_fname) {
@@ -103,22 +177,23 @@ void cache_sim(char *trace_fname) {
     if (flag) {
       read++;
       uint32_t set_bits = get_set_bits(addr_d, inst.address);
-      printf("Bits read: %b\n", set_bits);
       // use set bits to index into the cache
       struct set_t *set = cache[set_bits].set;
-      // NO EVICTION POLICY IS NEEDED
-      if (set->length < cache_conf.associativity) {
-        // insert new block into list
-        while (set->blocks != NULL) {
-          // traverse link list until we reach the end
-          set->blocks = set->blocks->next;
-        }
-        // create new block
-        set->blocks = create_block();
-        // increment length
-        set->length++;
+      // search the set for the given tag and decoded instruction
+      bool in_set = search_set(set, inst.address);
+      // cache hit! increment hit counter
+      if (in_set) {
+        HITS++;
+      } else {
+        // cache miss! increment miss counter and handle error
+        MISSES++;
+        // handle the miss, either eviction or creation of new cache block
+        handle_miss(set, cache_conf, inst.address);
       }
     }
   }
   printf("Lines read: %d\n", read);
+  printf("HITS: %d\n", HITS);
+  printf("MISSES: %d\n", MISSES);
+  printf("EVICTS: %d\n", EVICTS);
 }
