@@ -1,6 +1,5 @@
 #include "cache.h"
 #include "file_reader.h"
-#include "trace.h"
 #include <stdlib.h>
 #include <time.h>
 #define BLOCK_SIZE sizeof(struct blocks_t *)
@@ -13,8 +12,13 @@ struct cache_addr_d addr_d;
 uint32_t num_sets;
 uint32_t num_blocks;
 // trackers for hits and misses
-uint32_t HITS = 0;
-uint32_t MISSES = 0;
+uint32_t TOTAL_HITS = 0;
+uint32_t TOTAL_MISSES = 0;
+uint32_t LOAD_MISS = 0;
+uint32_t STORE_MISS = 0;
+uint32_t LOAD_HIT = 0;
+uint32_t STORE_HIT = 0;
+uint32_t NUM_OTHER_INTS = 0;
 // track evicts too
 uint32_t EVICTS = 0;
 // struct to represent each block in the set
@@ -83,14 +87,15 @@ struct blocks_t *create_block(uint32_t addr) {
   }
   return block;
 }
+// handle cache eviction if the set is already at capacity
 void handle_eviction(struct set_t *set, enum REP_POLICY policy, uint32_t addr) {
   struct blocks_t *block = create_block(addr);
+  int r;
+  EVICTS++;
   switch (policy) {
     // execute the FIFO eviction policy (remove first cache block and insert new
     // cache block at the end)
   case FIFO:
-    EVICTS++;
-    printf("FIFO Invoked!\n");
     // add old head's next pointer to the block pointer
     block->next = set->blocks;
     set->blocks = block;
@@ -109,10 +114,8 @@ void handle_eviction(struct set_t *set, enum REP_POLICY policy, uint32_t addr) {
     break;
     // execute random eviction policy
   case RANDOM:
-    EVICTS++;
     // return random value between 0 and associativity of cache - 1
-    int r = rand() % cache_conf.associativity;
-    printf("Random val: %d\n", r);
+    r = rand() % cache_conf.associativity;
     // use tempt var to get head of the linked list of cache blocks
     struct blocks_t *chosen = set->blocks;
     prev = chosen;
@@ -184,7 +187,7 @@ void handle_miss(struct set_t *set, struct cache_t cache_conf, uint32_t addr) {
     }
     // create new block
     head->next = create_block(addr);
-    // increment length
+    // increment length, since we just adding another cache block to the set
     set->length++;
   } else {
     printf("Length: %d\n", set->length);
@@ -209,9 +212,11 @@ void cache_sim(char *trace_fname) {
       cache[i].set->blocks = NULL;
     }
   }
-  FILE *trace_file = get_file(trace_fname);
+  FILE *trace_file = get_file(trace_fname, "r");
   int read = 0;
   int flag = 1;
+  // whiles bytes have been successfully read and the file has not ended, keep
+  // running the cache sim loop
   while (flag && !feof(trace_file)) {
     // get the instruction from the trace file
     struct inst_t inst = instruction_from_file(trace_file);
@@ -227,18 +232,19 @@ void cache_sim(char *trace_fname) {
       bool in_set = search_set(set, inst.address);
       // cache hit! increment hit counter
       if (in_set) {
-        HITS++;
+        TOTAL_HITS++;
       } else {
         // cache miss! increment miss counter and handle error
-        MISSES++;
+        TOTAL_MISSES++;
         // handle the miss, either eviction or creation of new cache block
         handle_miss(set, cache_conf, inst.address);
       }
     }
   }
+  fclose(file);
   printf("Lines read: %d\n", read);
-  printf("HITS: %d\n", HITS);
-  printf("MISSES: %d\n", MISSES);
+  printf("HITS: %d\n", TOTAL_HITS);
+  printf("MISSES: %d\n", TOTAL_MISSES);
   printf("EVICTS: %d\n", EVICTS);
   print_cache_dimensions(addr_d);
 }

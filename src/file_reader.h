@@ -2,10 +2,9 @@
 #define FILE_READER_H
 #include <stdio.h>
 extern ssize_t bytes;
-extern char *line_buf;
-extern int len;
+extern FILE *file;
 /*FUNCTION DECLARATIONS*/
-FILE *get_file(char *name);
+FILE *get_file(char *name, char *mode);
 void handle_byte_error(ssize_t bytes);
 const char *read_line(FILE *file);
 #endif
