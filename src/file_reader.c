@@ -1,9 +1,11 @@
+#include "file_reader.h"
 #include <stdio.h>
 #include <stdlib.h>
-
 // max line for reading file
 #define MAX_LEN 128
+// bytes read from currently opened file
 ssize_t bytes;
+// file pointer to currently opened file
 FILE *file;
 FILE *get_file(char *fname, char *mode) {
   // open file in read mode
@@ -13,13 +15,13 @@ FILE *get_file(char *fname, char *mode) {
     // exit out of program
     exit(EXIT_FAILURE);
   }
-  // return no a
+  // return file pointer
   return file;
 }
 // handle byte read error file ther are any
 void handle_byte_err(ssize_t bytes) {
   if (bytes == -1) {
-    // perror("Problem occured reading a byte\n");
+    perror("Problem occured reading a byte\n");
   }
 }
 
@@ -34,6 +36,5 @@ const char *read_line(FILE *file) {
     exit(EXIT_FAILURE);
   }
   bytes = getline(&line_buf, &len, file);
-  handle_byte_err(bytes);
   return line_buf;
 }

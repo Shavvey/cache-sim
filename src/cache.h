@@ -5,7 +5,6 @@
 #include <stdio.h>
 #define LOAD_INST 'l'
 #define STORE_INST 's'
-
 // address size used for instructions in trace is 32 bits
 #define ADDR_SIZE 32
 /* cache_t captures the all the important information of the cache setup
@@ -26,17 +25,17 @@
  * Assumes write through is used with no-write-allocate and write-back is used
  * with write-allocate.*/
 // represent replacement policy
-enum REP_POLICY { RANDOM = 0, FIFO = 1 };
+enum rep_policy { RANDOM = 0, FIFO = 1 };
 // represent whether we have no-write-allocate or write-allocate cache
-enum WRITE_ALLOC { NO = 0, YES = 1 };
+enum write_alloc { NO = 0, YES = 1 };
 
 struct cache_t {
   uint32_t block_size;
   uint32_t associativity;
   uint32_t cache_size;
-  enum REP_POLICY rep_policy;
+  enum rep_policy rep_policy;
   uint32_t miss_penalty;
-  enum WRITE_ALLOC write_alloc;
+  enum write_alloc write_alloc;
 };
 
 // used to group together the cache address dimensions
@@ -50,7 +49,7 @@ struct cache_addr_d {
 };
 
 // TYPE DECLARATIONS
-enum access_t {
+enum access_type {
   LOAD = 1,
   STORE = 0,
 };
@@ -58,7 +57,7 @@ enum access_t {
 // stores information about each instruction
 struct inst_t {
   // indicates whether instruction is load or store
-  enum access_t access_type;
+  enum access_type access_type;
   // indicates the address of the instruction
   int32_t address;
   // indicates the number of instructions
@@ -75,4 +74,5 @@ void print_cache_dimensions(struct cache_addr_d);
 struct inst_t instruction_from_file(FILE *file);
 void print_instruction(struct inst_t inst);
 void print_all_inst(FILE *file);
+bool check_policy(enum write_alloc policy, enum access_type type);
 #endif

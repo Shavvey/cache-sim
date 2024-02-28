@@ -41,6 +41,23 @@ struct cache {
   struct set_t *set;
 };
 
+// record hit  depending on what type it is
+void record_hit(enum access_type type) {
+  if (type == LOAD) {
+    LOAD_HIT++;
+  } else {
+    STORE_HIT++;
+  }
+}
+// record miss depending on what type it is
+void record_miss(enum access_type type) {
+  if (type == LOAD) {
+    LOAD_MISS++;
+  } else {
+    STORE_MISS++;
+  }
+}
+
 // helper function for bit mask, just return the power using integer bases and
 // exponents
 int power_rec(int base, int exponent) {
@@ -88,7 +105,7 @@ struct blocks_t *create_block(uint32_t addr) {
   return block;
 }
 // handle cache eviction if the set is already at capacity
-void handle_eviction(struct set_t *set, enum REP_POLICY policy, uint32_t addr) {
+void handle_eviction(struct set_t *set, enum rep_policy policy, uint32_t addr) {
   struct blocks_t *block = create_block(addr);
   int r;
   EVICTS++;
@@ -160,7 +177,7 @@ bool search_set(struct set_t *set, uint32_t addr) {
     // compare tag of given instruction address with given block address in set
     if (compare_tag(addr_d, addr, set->blocks->addr)) {
       // NOTE: just for testing purposes
-      printf("Tag matched!\n");
+      // printf("Tag matched!\n");
       return 1;
     }
     // traverse linked list of blocks
@@ -170,7 +187,6 @@ bool search_set(struct set_t *set, uint32_t addr) {
   return 0;
 }
 void handle_miss(struct set_t *set, struct cache_t cache_conf, uint32_t addr) {
-  printf("Handle miss!\n");
   if (set->blocks == NULL) {
     set->blocks = create_block(addr);
     set->length++;
@@ -190,10 +206,19 @@ void handle_miss(struct set_t *set, struct cache_t cache_conf, uint32_t addr) {
     // increment length, since we just adding another cache block to the set
     set->length++;
   } else {
-    printf("Length: %d\n", set->length);
     handle_eviction(set, cache_conf.rep_policy, addr);
   }
 }
+// check to see if the policy allows current instruct type to be allocated
+bool check_policy(enum write_alloc policy, enum access_type type) {
+  // if the write policy allos
+  if (policy == NO && type == STORE) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
 // after loading in cache config we can finally perform the cache simulation
 void cache_sim(char *trace_fname) {
   // init random seed (used for random cache eviction policy)
@@ -203,7 +228,7 @@ void cache_sim(char *trace_fname) {
   // create cache struct that represents the state of the cache
   struct cache cache[num_sets];
   // allocate memory for each set, leave the block pointer set to null for now
-  for (int i = 0; i < num_sets; i++) {
+  for (uint32_t i = 0; i < num_sets; i++) {
     cache[i].set = (struct set_t *)malloc(SET_SIZE);
     if (cache[i].set != NULL) {
       // set the length of the set to be zero explicitly
@@ -232,12 +257,15 @@ void cache_sim(char *trace_fname) {
       bool in_set = search_set(set, inst.address);
       // cache hit! increment hit counter
       if (in_set) {
-        TOTAL_HITS++;
-      } else {
-        // cache miss! increment miss counter and handle error
-        TOTAL_MISSES++;
+        record_hit(inst.access_type);
+      } else if (check_policy(cache_conf.write_alloc, inst.access_type)) {
+        record_miss(inst.access_type);
         // handle the miss, either eviction or creation of new cache block
         handle_miss(set, cache_conf, inst.address);
+      } else {
+        // record miss since policy doesn't allow use to a block for writes
+        // we do nothing else
+        record_miss(inst.access_type);
       }
     }
   }
@@ -245,6 +273,10 @@ void cache_sim(char *trace_fname) {
   printf("Lines read: %d\n", read);
   printf("HITS: %d\n", TOTAL_HITS);
   printf("MISSES: %d\n", TOTAL_MISSES);
+  printf("LOAD MISSES: %d\n", LOAD_MISS);
+  printf("STORE MISSES: %d\n", STORE_MISS);
+  printf("STORE HITS: %d\n", STORE_HIT);
+  printf("LOAD HITS: %d\n", LOAD_HIT);
   printf("EVICTS: %d\n", EVICTS);
   print_cache_dimensions(addr_d);
 }

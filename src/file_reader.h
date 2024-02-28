@@ -7,4 +7,5 @@ extern FILE *file;
 FILE *get_file(char *name, char *mode);
 void handle_byte_error(ssize_t bytes);
 const char *read_line(FILE *file);
+void handle_byte_err(ssize_t bytes);
 #endif

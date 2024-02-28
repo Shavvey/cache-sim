@@ -13,21 +13,27 @@ struct cache_t get_cache_config(char *fname) {
   file = get_file(fname, "r");
   // read block size
   line = read_line(file);
+  handle_byte_err(bytes);
   sscanf(line, "%i", &cache.block_size);
   // read associativity (n-way set associativity)
   line = read_line(file);
+  handle_byte_err(bytes);
   sscanf(line, "%i", &cache.associativity);
   // read the total cache size
   line = read_line(file);
+  handle_byte_err(bytes);
   sscanf(line, "%i", &cache.cache_size);
   // read replacement policy
   line = read_line(file);
+  handle_byte_err(bytes);
   sscanf(line, "%d", &cache.rep_policy);
   // read miss penalty
   line = read_line(file);
+  handle_byte_err(bytes);
   sscanf(line, "%i", &cache.miss_penalty);
   // read write allocation policy (no-write-allocate vs write-allocate)
   line = read_line(file);
+  handle_byte_err(bytes);
   sscanf(line, "%d", &cache.write_alloc);
   // close file being read
   fclose(file);
@@ -141,7 +147,6 @@ void print_instruction(struct inst_t inst) {
 }
 
 void print_all_inst(FILE *file) {
-  int flag = 1;
   while (!feof(file)) {
     struct inst_t inst = instruction_from_file(file);
     print_instruction(inst);
