@@ -2,6 +2,7 @@
 #include "file_reader.h"
 #include "trace.h"
 #include <stdlib.h>
+#include <time.h>
 #define BLOCK_SIZE sizeof(struct blocks_t *)
 #define SET_SIZE sizeof(struct set_t *)
 // GLOBALS
@@ -23,7 +24,7 @@ struct blocks_t {
   // also contains a reference to the next block
   struct blocks_t *next;
 };
-// each set holds a given ammount of cache blocks, given by associativity value
+// each set holds a given amount of cache blocks, given by associativity value
 struct set_t {
   // each set is represented as a chain of cache blocks
   struct blocks_t *blocks;
@@ -36,6 +37,8 @@ struct cache {
   struct set_t *set;
 };
 
+// helper function for bit mask, just return the power using integer bases and
+// exponents
 int power_rec(int base, int exponent) {
   return (exponent == 1) ? base : base * power_rec(base, exponent - 1);
 }
@@ -83,6 +86,8 @@ struct blocks_t *create_block(uint32_t addr) {
 void handle_eviction(struct set_t *set, enum REP_POLICY policy, uint32_t addr) {
   struct blocks_t *block = create_block(addr);
   switch (policy) {
+    // execute the FIFO eviction policy (remove first cache block and insert new
+    // cache block at the end)
   case FIFO:
     EVICTS++;
     printf("FIFO Invoked!\n");
@@ -102,7 +107,45 @@ void handle_eviction(struct set_t *set, enum REP_POLICY policy, uint32_t addr) {
     // the last block inside linked list
     free(head);
     break;
+    // execute random eviction policy
   case RANDOM:
+    EVICTS++;
+    // return random value between 0 and associativity of cache - 1
+    int r = rand() % cache_conf.associativity;
+    printf("Random val: %d\n", r);
+    // use tempt var to get head of the linked list of cache blocks
+    struct blocks_t *chosen = set->blocks;
+    prev = chosen;
+    for (int i = 0; i < r; i++) {
+      prev = chosen;
+      // goto next element in linked list
+      chosen = chosen->next;
+    }
+    // if we are point to head (for loop is not ran)
+    if (chosen == prev) {
+      // inherit current heads link
+      block->next = chosen->next;
+      // set new block to be head
+      set->blocks = block;
+      // free chosen block, in this case the head
+      free(chosen);
+    } else if (chosen->next == NULL) {
+      // otherwise this is just the tail
+      prev->next = block;
+      free(chosen);
+      // else we need to conjoined the two ends of the linked list and free
+      // the picked node
+    } else {
+      // final case we're we are in the middle somewhere
+      // create local var to store next of chosen block, just for clarity
+      struct blocks_t *next = chosen->next;
+      // previous block now links to new block
+      prev->next = block;
+      // inherit chosen's block link
+      block->next = next;
+      // free chosen node
+      free(chosen);
+    }
     break;
   }
 }
@@ -139,7 +182,6 @@ void handle_miss(struct set_t *set, struct cache_t cache_conf, uint32_t addr) {
       // traverse link list until we reach the end
       head = head->next;
     }
-    printf("Out!\n");
     // create new block
     head->next = create_block(addr);
     // increment length
@@ -151,6 +193,8 @@ void handle_miss(struct set_t *set, struct cache_t cache_conf, uint32_t addr) {
 }
 // after loading in cache config we can finally perform the cache simulation
 void cache_sim(char *trace_fname) {
+  // init random seed (used for random cache eviction policy)
+  srand((unsigned int)time(NULL));
   // declare array of sets to represent cache, based on number of set obtained
   // from cache config
   // create cache struct that represents the state of the cache
@@ -196,4 +240,5 @@ void cache_sim(char *trace_fname) {
   printf("HITS: %d\n", HITS);
   printf("MISSES: %d\n", MISSES);
   printf("EVICTS: %d\n", EVICTS);
+  print_cache_dimensions(addr_d);
 }
