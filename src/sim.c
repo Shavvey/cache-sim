@@ -2,7 +2,7 @@
 #include "file_reader.h"
 #include "trace.h"
 #include <stdlib.h>
-#define BLOCK_SIZE sizeof(struct block_t *)
+#define BLOCK_SIZE sizeof(struct blocks_t *)
 #define SET_SIZE sizeof(struct set_t *)
 // GLOBALS
 // cache configuration
@@ -48,8 +48,9 @@ bool compare_tag(struct cache_addr_d addr, uint32_t address1,
   return ((address1 & mask) == (address2 & mask));
 }
 uint32_t get_set_bits(struct cache_addr_d addr, uint32_t address) {
-  uint32_t mask = make_bit_mask(addr.set_index, addr.offset + addr.tag);
-  return (address & mask);
+  uint32_t mask = make_bit_mask(addr.set_index, addr.offset);
+  address = (address & mask);
+  return (address >> addr.offset);
 }
 // load cache config and address dimensions
 void load_cache_config(char *config_fname) {
@@ -63,6 +64,16 @@ void load_cache_config(char *config_fname) {
   num_blocks = (cache_conf.cache_size * 1024) / (cache_conf.block_size);
   printf("Number of sets: %d\n", num_sets);
   printf("Number of blocks: %d\n", num_blocks);
+}
+struct blocks_t *create_block() {
+  struct blocks_t *block = (struct blocks_t *)malloc(BLOCK_SIZE);
+  if (block != NULL) {
+    // set link to be null explicitly
+    block->next = NULL;
+  } else {
+    perror("Error allocating memory for block");
+  }
+  return block;
 }
 // after loading in cache config we can finally perform the cache simulation
 void cache_sim(char *trace_fname) {
@@ -82,12 +93,32 @@ void cache_sim(char *trace_fname) {
   }
   FILE *trace_file = get_file(trace_fname);
   int read = 0;
-  while (!feof(trace_file)) {
+  int flag = 1;
+  while (flag && !feof(trace_file)) {
     // get the instruction from the trace file
     struct inst_t inst = instruction_from_file(trace_file);
     // **PROCESSING THE INSTRUCTION**
-    read++;
-    printf("Error reading at: %d\n", read);
+    // if read actually returns some bytes, then process the read instruction
+    flag = (bytes > 0);
+    if (flag) {
+      read++;
+      uint32_t set_bits = get_set_bits(addr_d, inst.address);
+      printf("Bits read: %b\n", set_bits);
+      // use set bits to index into the cache
+      struct set_t *set = cache[set_bits].set;
+      // NO EVICTION POLICY IS NEEDED
+      if (set->length < cache_conf.associativity) {
+        // insert new block into list
+        while (set->blocks != NULL) {
+          // traverse link list until we reach the end
+          set->blocks = set->blocks->next;
+        }
+        // create new block
+        set->blocks = create_block();
+        // increment length
+        set->length++;
+      }
+    }
   }
   printf("Lines read: %d\n", read);
 }

@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     char *cname = argv[CONFIG_FILE];
     char *tname = argv[TRACE_FILE];
     load_cache_config(cname);
-    // cache_sim(tname);
+    cache_sim(tname);
   } else {
     // print this error message if we aren't given the proper amount of args
     const char *ERROR =

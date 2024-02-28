@@ -19,8 +19,8 @@ FILE *get_file(char *fname) {
 }
 // handle byte read error file ther are any
 void handle_byte_err(ssize_t bytes, FILE *file) {
-  if (bytes < 0) {
-    perror("Problem occured reading a byte\n");
+  if (bytes == -1) {
+    // perror("Problem occured reading a byte\n");
   }
 }
 

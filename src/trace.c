@@ -56,6 +56,7 @@ void print_instruction(struct inst_t inst) {
 }
 
 void print_all_inst(FILE *file) {
+  int flag = 1;
   while (!feof(file)) {
     struct inst_t inst = instruction_from_file(file);
     print_instruction(inst);
