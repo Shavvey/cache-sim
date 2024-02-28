@@ -28,4 +28,6 @@ struct inst_queue {
 struct inst_t instruction_from_file(FILE *file);
 void print_instruction(struct inst_t inst);
 void print_all_inst(FILE *file);
+uint32_t make_bit_mask(uint8_t num_bits, uint8_t offset);
+int power(int base, int exponent);
 #endif

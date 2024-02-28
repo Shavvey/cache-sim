@@ -71,3 +71,12 @@ void print_all_inst(FILE *file) {
     print_instruction(inst);
   }
 }
+int power(int base, int exponent) {
+  return (exponent == 1) ? base : base * power(base, exponent - 1);
+}
+// make a bit mask based on the number of bits needed and the offset
+uint32_t make_bit_mask(uint8_t num_bits, uint8_t offset) {
+  uint32_t mask = power(2, num_bits) - 1;
+  printf("mask: %d\n", mask);
+  return mask << offset;
+}
