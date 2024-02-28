@@ -20,16 +20,6 @@ struct inst_t {
   uint32_t num_inst;
 };
 
-// create an instruction queue to read from
-// this is the final data structure we will parse the trace file into
-struct inst_queue {
-  struct inst_t front, rear;
-  struct ins_t *array;
-  struct inst_t inst_t;
-  unsigned capacity;
-  unsigned size;
-};
-
 // get instruction from file, uses file_reader functions
 struct inst_t instruction_from_file(FILE *file) {
   struct inst_t instruction;
@@ -70,13 +60,4 @@ void print_all_inst(FILE *file) {
     struct inst_t inst = instruction_from_file(file);
     print_instruction(inst);
   }
-}
-int power(int base, int exponent) {
-  return (exponent == 1) ? base : base * power(base, exponent - 1);
-}
-// make a bit mask based on the number of bits needed and the offset
-uint32_t make_bit_mask(uint8_t num_bits, uint8_t offset) {
-  uint32_t mask = power(2, num_bits) - 1;
-  printf("mask: %d\n", mask);
-  return mask << offset;
 }

@@ -1,5 +1,4 @@
 #include "sim.h"
-#include "trace.h"
 #include <stdio.h>
 #include <stdlib.h>
 // configuration file is the first passed arg
@@ -16,8 +15,7 @@ int main(int argc, char *argv[]) {
     char *cname = argv[CONFIG_FILE];
     char *tname = argv[TRACE_FILE];
     load_cache_config(cname);
-    uint32_t mask = make_bit_mask(4, 3);
-    printf("mask: %b\n", mask);
+    // cache_sim(tname);
   } else {
     // print this error message if we aren't given the proper amount of args
     const char *ERROR =
