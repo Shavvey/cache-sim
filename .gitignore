@@ -2,3 +2,5 @@
 # ingnore all object file inside repo
 *.o
 .pdf
+# ignore output files for now
+*.out

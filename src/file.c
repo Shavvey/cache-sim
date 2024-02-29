@@ -1,6 +1,7 @@
 #include "file.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 // max line for reading file
 #define MAX_LEN 128
 // bytes read from currently opened file
@@ -37,4 +38,49 @@ const char *read_line(FILE *file) {
   }
   bytes = getline(&line_buf, &len, file);
   return line_buf;
+}
+
+// just a little helper function to write a given string to a textfile
+void write_line(FILE *file, char *line) { fprintf(file, "%s", line); }
+
+// strip the filename extension off of a string,
+// this just loop through the string until in finds a '.'
+// and then just null terminates it afterwards
+void strip_ext(char *fname) {
+  // find the end of the original string using strlen
+  char *end = fname + strlen(fname);
+  while (end > fname && *end != '.') {
+    // decrement pointer to the end of the string
+    --end;
+  }
+  if (end > fname) {
+    // null terminate it if we have found the '.' and the end pointer is not the
+    // first char in the string
+    *end = '\0';
+  }
+}
+
+void create_output_fname(char *fname, char *new_ext) {
+  strip_ext(fname);
+  // concatenate with the new file extension name
+  strcat(fname, new_ext);
+}
+
+// this is just a simple helper function to create a new string
+// that strips off extra path information
+// what i would like this function to do ../trace/gcc.trace -> gcc.trace
+char *strip_path_info(char *fname) {
+  int i = 0;
+  int index = 0;
+  for (char *ps = fname; *ps != '\0'; ps++) {
+    // find the last instance of the '\' char
+    if (*ps == '/') {
+      index = i;
+    }
+    i++;
+  }
+  char *name = fname;
+  // skipt over the last '/' char, creating a file name without any path info
+  name += index + 1;
+  return name;
 }

@@ -1,6 +1,7 @@
 #include "cache.h"
 #include "file.h"
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #define BLOCK_SIZE sizeof(struct blocks_t *)
 #define SET_SIZE sizeof(struct set_t *)
@@ -12,16 +13,16 @@ struct cache_addr_d addr_d;
 uint32_t num_sets;
 uint32_t num_blocks;
 // trackers for hits and misses
-uint32_t TOTAL_HITS = 0;
-uint32_t TOTAL_MISSES = 0;
-uint32_t LOAD_MISS = 0;
-uint32_t STORE_MISS = 0;
-uint32_t LOAD_HIT = 0;
-uint32_t STORE_HIT = 0;
-uint32_t NUM_OTHER_INST = 0;
-uint32_t MEM_INST_READ = 0;
+int TOTAL_HITS = 0;
+int TOTAL_MISSES = 0;
+int LOAD_MISS = 0;
+int STORE_MISS = 0;
+int LOAD_HIT = 0;
+int STORE_HIT = 0;
+int NUM_OTHER_INST = 0;
+int MEM_INST_READ = 0;
 // track evicts too
-uint32_t EVICTS = 0;
+int EVICTS = 0;
 // struct to represent each block in the set
 struct blocks_t {
   // holds the 32 bit address
@@ -219,6 +220,41 @@ bool check_policy(enum write_alloc policy, enum access_type type) {
     return true;
   }
 }
+void write_to_textfile(char *trace_fname) {
+  // calculate the total hit rate
+  float TOTAL_HIT_RATE = ((float)(STORE_HIT + LOAD_HIT) / MEM_INST_READ) * 100;
+  // calculate percentage of load hits
+  float LOAD_HIT_RATE = ((float)LOAD_HIT / MEM_INST_READ) * 100;
+  // calcualte percentage of stoer hits
+  float STORE_HIT_RATE = ((float)STORE_HIT / MEM_INST_READ) * 100;
+  // the total run time in cycles (assume all other instructions have a CPI of 1
+  // and that hit time is one cycle)
+  uint32_t TOTAL_RUN_TIME = (STORE_HIT + LOAD_HIT) +
+                            (STORE_MISS + LOAD_MISS) * cache_conf.miss_penalty +
+                            NUM_OTHER_INST;
+  printf("The total hit rate is: %f\n", TOTAL_HIT_RATE);
+  // get the size of the trace name
+  int size = strlen(trace_fname);
+  char name[size];
+  // copy string literal of trace name into new mutable character array
+  strcpy(name, trace_fname);
+  create_output_fname(name, ".out");
+  char *f = name;
+  char *fname = strip_path_info(f);
+  // print out the file name
+  printf("file name: %s\n", fname);
+  file = get_file(fname, "w");
+  // begin writing information to the textfile
+  char buffer[50];
+  snprintf(buffer, 50, "The total hit rate is: %f\n", TOTAL_HIT_RATE);
+  write_line(file, buffer);
+  snprintf(buffer, 50, "The load hit rate is: %f\n", LOAD_HIT_RATE);
+  write_line(file, buffer);
+  snprintf(buffer, 50, "The store hit rate is: %f\n", STORE_HIT_RATE);
+  write_line(file, buffer);
+  snprintf(buffer, 50, "The total run time is: %u cycles\n", TOTAL_RUN_TIME);
+  fclose(file);
+}
 
 // after loading in cache config we can finally perform the cache simulation
 void cache_sim(char *trace_fname) {
@@ -284,4 +320,5 @@ void cache_sim(char *trace_fname) {
   printf("LOAD HITS: %d\n", LOAD_HIT);
   printf("NUMBER OF OTHER EXECUTED INSTRUCTIONS: %d\n", NUM_OTHER_INST);
   printf("EVICTS: %d\n", EVICTS);
+  write_to_textfile(trace_fname);
 }

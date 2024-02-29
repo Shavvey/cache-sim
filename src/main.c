@@ -5,6 +5,7 @@
 #define CONFIG_FILE 1
 // trace file is the second passed arg
 #define TRACE_FILE 2
+#define SIZE(x) sizeof(x) / sizeof(x[0])
 
 int main(int argc, char *argv[]) {
   // argc will track to see if a arguments have been passed
@@ -16,6 +17,7 @@ int main(int argc, char *argv[]) {
     char *tname = argv[TRACE_FILE];
     load_cache_config(cname);
     cache_sim(tname);
+
   } else {
     // print this error message if we aren't given the proper amount of args
     const char *ERROR =
