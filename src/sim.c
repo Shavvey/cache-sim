@@ -221,8 +221,11 @@ bool check_policy(enum write_alloc policy, enum access_type type) {
   }
 }
 void write_to_textfile(char *trace_fname) {
+  int MISS_PENALTY = cache_conf.miss_penalty;
   // calculate the total hit rate
   float TOTAL_HIT_RATE = ((float)(STORE_HIT + LOAD_HIT) / MEM_INST_READ) * 100;
+  float TOTAL_MISS_RATE =
+      ((float)(STORE_MISS + LOAD_MISS) / MEM_INST_READ) * 100;
   // calculate percentage of load hits
   float LOAD_HIT_RATE = ((float)LOAD_HIT / MEM_INST_READ) * 100;
   // calcualte percentage of stoer hits
@@ -232,7 +235,12 @@ void write_to_textfile(char *trace_fname) {
   uint32_t TOTAL_RUN_TIME = (STORE_HIT + LOAD_HIT) +
                             (STORE_MISS + LOAD_MISS) * cache_conf.miss_penalty +
                             NUM_OTHER_INST;
-  printf("The total hit rate is: %f\n", TOTAL_HIT_RATE);
+  // average memory latency is (hit_time) + (miss_rate)*(miss_time)
+  // NOTE:
+  // assumes hit time is one cycle
+  float AVERAGE_MEM_LATENCY =
+      1 + ((float)MISS_PENALTY / 100 *
+           TOTAL_MISS_RATE); // inverse of hit rate is miss rate
   // get the size of the trace name
   int size = strlen(trace_fname);
   char name[size];
@@ -240,19 +248,29 @@ void write_to_textfile(char *trace_fname) {
   strcpy(name, trace_fname);
   create_output_fname(name, ".out");
   char *f = name;
+  // strip path info inside the name if there is any
   char *fname = strip_path_info(f);
-  // print out the file name
-  printf("file name: %s\n", fname);
   file = get_file(fname, "w");
   // begin writing information to the textfile
   char buffer[50];
-  snprintf(buffer, 50, "The total hit rate is: %f\n", TOTAL_HIT_RATE);
+  snprintf(buffer, 50, "The total hit rate is: %f %%\n", TOTAL_HIT_RATE);
   write_line(file, buffer);
-  snprintf(buffer, 50, "The load hit rate is: %f\n", LOAD_HIT_RATE);
+  snprintf(buffer, 50, "The load hit rate is: %f %%\n", LOAD_HIT_RATE);
   write_line(file, buffer);
-  snprintf(buffer, 50, "The store hit rate is: %f\n", STORE_HIT_RATE);
+  snprintf(buffer, 50, "The store hit rate is: %f %%\n", STORE_HIT_RATE);
   write_line(file, buffer);
   snprintf(buffer, 50, "The total run time is: %u cycles\n", TOTAL_RUN_TIME);
+  write_line(file, buffer);
+  snprintf(buffer, 50, "The average memory access latency: %f cycles\n",
+           AVERAGE_MEM_LATENCY);
+  write_line(file, buffer);
+  // print out the statistics to stdout because why not
+  printf("The total hit rate is: %f%%\n", TOTAL_HIT_RATE);
+  printf("The load hit rate is: %f%%\n", LOAD_HIT_RATE);
+  printf("The store hit rate is; %f%%\n", STORE_HIT_RATE);
+  printf("The total run time is: %u cycles\n", TOTAL_RUN_TIME);
+  printf("The average memory access latency: %f cycles\n", AVERAGE_MEM_LATENCY);
+  // close the file after writing the lines
   fclose(file);
 }
 
