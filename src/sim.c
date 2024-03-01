@@ -274,6 +274,26 @@ void write_to_textfile(char *trace_fname) {
   fclose(file);
 }
 
+// helper function to free the linked list of block after running the sim
+void free_cache_block(struct blocks_t *block) {
+  while (block->next != NULL) {
+    struct blocks_t *prev = block;
+    // go to next block
+    block = block->next;
+    free(prev);
+  }
+  // free the last block
+  free(block);
+}
+
+// helper function to clear cache datat structure after use
+void clear_cache(struct cache *cache) {
+  for (uint32_t i = 0; i < num_sets; i++) {
+    // clear all the block inside the set
+    free_cache_block(cache[i].set->blocks);
+  }
+}
+
 // after loading in cache config we can finally perform the cache simulation
 void cache_sim(char *trace_fname) {
   // init random seed (used for random cache eviction policy)
@@ -339,4 +359,5 @@ void cache_sim(char *trace_fname) {
   printf("NUMBER OF OTHER EXECUTED INSTRUCTIONS: %d\n", NUM_OTHER_INST);
   printf("EVICTS: %d\n", EVICTS);
   write_to_textfile(trace_fname);
+  clear_cache(cache);
 }

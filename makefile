@@ -19,6 +19,6 @@ clean:
 
 # test cache-sim program using sample config and trace
 .PHONY: test
-test: ../cache-sim
-	../cache-sim ../sample.conf ../traces/gcc.trace
+test: cache-sim
+	./cache-sim ./sample.conf ./traces/gcc.trace
 
