@@ -1,8 +1,8 @@
 # compiler of choice plus the flags used during compilation
 CC=gcc
 CFLAGS=-W -Wall -g
-DEPS = file.h cache.h sim.h
-OBJ = main.o file.o cache.o sim.o
+DEPS = src/file.h src/cache.h src/sim.h
+OBJ = src/main.o src/file.o src/cache.o src/sim.o
 
 # make each object file from dependencies and sources
 %.o: %.c $(DEPS)
@@ -10,7 +10,7 @@ OBJ = main.o file.o cache.o sim.o
 
 # make cache-sim final executable, put this inside the parent dir
 cache-sim: $(OBJ)
-	$(CC) -o ../cache-sim $^ $(CFLAGS)
+	$(CC) -o cache-sim $^ $(CFLAGS)
 
 # clean by deleting all object files and core files
 .PHONY: clean

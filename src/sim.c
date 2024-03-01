@@ -267,7 +267,7 @@ void write_to_textfile(char *trace_fname) {
   // print out the statistics to stdout because why not
   printf("Total hit rate is: %f%%\n", TOTAL_HIT_RATE);
   printf("Load hit rate is: %f%%\n", LOAD_HIT_RATE);
-  printf("Store hit rate is; %f%%\n", STORE_HIT_RATE);
+  printf("Store hit rate is: %f%%\n", STORE_HIT_RATE);
   printf("Total run time is: %u cycles\n", TOTAL_RUN_TIME);
   printf("Average memory access latency: %f cycles\n", AVERAGE_MEM_LATENCY);
   // close the file after writing the lines
