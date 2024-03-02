@@ -1,6 +1,7 @@
 #ifndef FILE_READER_H
 #define FILE_READER_H
 #include <stdio.h>
+/* EXTERNAL VARS*/
 extern ssize_t bytes;
 extern FILE *file;
 /*FUNCTION DECLARATIONS*/

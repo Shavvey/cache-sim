@@ -7,7 +7,7 @@
 #define STORE_INST 's'
 // address size used for instructions in trace is 32 bits
 #define ADDR_SIZE 32
-/* cache_t captures the all the important information of the cache setup
+/* cache_t captures all the important information of the cache setup
  * INCLUDES THE FOLLOWING:
  * LINE SIZE: Specifies the line (block) size for the cache in bytes. Should be
  * a non-negative power of 2
@@ -30,15 +30,23 @@ enum rep_policy { RANDOM = 0, FIFO = 1 };
 enum write_alloc { NO = 0, YES = 1 };
 
 struct cache_t {
+  // block/lines size of the cache, should be a power of 2
   uint32_t block_size;
+  // associativity, how many sets we have in the cache, should be a power of 2
   uint32_t associativity;
+  // total cache size
   uint32_t cache_size;
+  // replacment policy, either FIFO or RANDOM implemented
   enum rep_policy rep_policy;
+  // penalty in cycles for a cache miss
   uint32_t miss_penalty;
+  // allocate policy, either write-allocate or no-write-allocate
   enum write_alloc write_alloc;
 };
 
 // used to group together the cache address dimensions
+// describes the number of bits allocate to each field for every address inside
+// the cache
 struct cache_addr_d {
   // used to compare different cache blocks
   uint32_t tag;
@@ -48,7 +56,6 @@ struct cache_addr_d {
   uint32_t offset;
 };
 
-// TYPE DECLARATIONS
 enum access_type {
   LOAD = 1,
   STORE = 0,

@@ -3,26 +3,30 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+// some useful macros to quickly find block and set size in bytes
 #define BLOCK_SIZE sizeof(struct blocks_t *)
 #define SET_SIZE sizeof(struct set_t *)
+#define HIT_TIME 1 // assume that the hit time is just one cycle
 // GLOBALS
 // cache configuration
 struct cache_t cache_conf;
 // cache address dimensions
 struct cache_addr_d addr_d;
+// number of set we have given cache configuration
 uint32_t num_sets;
+// number of block we have given caceh configuration
 uint32_t num_blocks;
 // trackers for hits and misses
-int TOTAL_HITS = 0;
-int TOTAL_MISSES = 0;
-int LOAD_MISS = 0;
-int STORE_MISS = 0;
-int LOAD_HIT = 0;
-int STORE_HIT = 0;
-int NUM_OTHER_INST = 0;
-int MEM_INST_READ = 0;
+static int LOAD_MISS = 0;
+static int STORE_MISS = 0;
+static int LOAD_HIT = 0;
+static int STORE_HIT = 0;
+// track the number of other instructions inside trace
+static int NUM_OTHER_INST = 0;
+// track number of memory references we handle insdie the trace
+static int MEM_INST_READ = 0;
 // track evicts too
-int EVICTS = 0;
+static int EVICTS = 0;
 // struct to represent each block in the set
 struct blocks_t {
   // holds the 32 bit address
@@ -107,6 +111,7 @@ struct blocks_t *create_block(uint32_t addr) {
   return block;
 }
 // handle cache eviction if the set is already at capacity
+// two eviction policies are current implemented: FIFO and random
 void handle_eviction(struct set_t *set, enum rep_policy policy, uint32_t addr) {
   struct blocks_t *block = create_block(addr);
   int r;
@@ -130,6 +135,7 @@ void handle_eviction(struct set_t *set, enum rep_policy policy, uint32_t addr) {
     prev->next = NULL;
     // the last block inside linked list
     free(head);
+    // break out of FIFO case
     break;
     // execute random eviction policy
   case RANDOM:
@@ -168,6 +174,7 @@ void handle_eviction(struct set_t *set, enum rep_policy policy, uint32_t addr) {
       // free chosen node
       free(chosen);
     }
+    // break out of random case
     break;
   }
 }
@@ -239,8 +246,8 @@ void write_to_textfile(char *trace_fname) {
   // NOTE:
   // assumes hit time is one cycle
   float AVERAGE_MEM_LATENCY =
-      1 + ((float)MISS_PENALTY / 100 *
-           TOTAL_MISS_RATE); // inverse of hit rate is miss rate
+      HIT_TIME + ((float)MISS_PENALTY / 100 *
+                  TOTAL_MISS_RATE); // inverse of hit rate is miss rate
   // get the size of the trace name
   int size = strlen(trace_fname);
   char name[size];
@@ -276,10 +283,12 @@ void write_to_textfile(char *trace_fname) {
 
 // helper function to free the linked list of block after running the sim
 void free_cache_block(struct blocks_t *block) {
+  // repeat this until we reach last item in the linked list
   while (block->next != NULL) {
     struct blocks_t *prev = block;
     // go to next block
     block = block->next;
+    // free to previous block
     free(prev);
   }
   // free the last block
@@ -298,9 +307,10 @@ void clear_cache(struct cache *cache) {
 void cache_sim(char *trace_fname) {
   // init random seed (used for random cache eviction policy)
   srand((unsigned int)time(NULL));
-  // declare array of sets to represent cache, based on number of set obtained
+  // declare array of sets to represent cache, based on number of sets obtained
   // from cache config
-  // create cache struct that represents the state of the cache
+  // create cache struct that represents the state of the cache, which holds the
+  // number of sets and each set holds the number of blocks
   struct cache cache[num_sets];
   // allocate memory for each set, leave the block pointer set to null for now
   for (uint32_t i = 0; i < num_sets; i++) {
@@ -336,8 +346,12 @@ void cache_sim(char *trace_fname) {
       bool is_write = check_policy(cache_conf.write_alloc, inst.access_type);
       // cache hit! increment hit counter
       if (in_set) {
+        // record the hit, based on instruction type (LOAD or STORE)
         record_hit(inst.access_type);
+        // check the write policy and instruction type to see if this need to be
+        // handled (i.e. new cache block needs to be loaded)
       } else if (is_write) {
+        // record
         record_miss(inst.access_type);
         // handle the miss, either eviction or creation of new cache block
         handle_miss(set, cache_conf, inst.address);
@@ -348,7 +362,9 @@ void cache_sim(char *trace_fname) {
       }
     }
   }
+  // close file used to read instructions
   fclose(file);
+  // print out a bunch a statistics i would like to see
   printf("INSTRUCTIONS READ: %d\n", MEM_INST_READ);
   printf("HITS: %d\n", STORE_HIT + LOAD_HIT);
   printf("MISSES: %d\n", STORE_MISS + LOAD_MISS);
@@ -358,6 +374,8 @@ void cache_sim(char *trace_fname) {
   printf("LOAD HITS: %d\n", LOAD_HIT);
   printf("NUMBER OF OTHER EXECUTED INSTRUCTIONS: %d\n", NUM_OTHER_INST);
   printf("EVICTS: %d\n", EVICTS);
+  // write the required stastics collected during the sim run
   write_to_textfile(trace_fname);
+  // clear out any dynamics allocated made inside the cache
   clear_cache(cache);
 }

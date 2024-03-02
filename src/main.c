@@ -5,7 +5,6 @@
 #define CONFIG_FILE 1
 // trace file is the second passed arg
 #define TRACE_FILE 2
-#define SIZE(x) sizeof(x) / sizeof(x[0])
 
 int main(int argc, char *argv[]) {
   // argc will track to see if a arguments have been passed

@@ -1,7 +1,9 @@
 # compiler of choice plus the flags used during compilation
 CC=gcc
 CFLAGS=-W -Wall -g
+# project dependencies, all the header files need to compile
 DEPS = src/file.h src/cache.h src/sim.h
+# all the project object files that need to be created
 OBJ = src/main.o src/file.o src/cache.o src/sim.o
 
 # make each object file from dependencies and sources
