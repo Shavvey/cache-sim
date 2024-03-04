@@ -3,7 +3,16 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-
+/*************************************************************************
+Filename: cache.c
+Description: Implements a struct that stores the cache configuration.
+Author: Cole Johnosn
+Class: CSE 3031
+Instructor: Zheng
+Assignment: Lab #2
+Assigned: 2/22/2024
+Due: 3/7/2024
+************************************************************************/
 // get cache config from file, use the file_reader.c libraries created
 struct cache_t get_cache_config(char *fname) {
   struct cache_t cache;

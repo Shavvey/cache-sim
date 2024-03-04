@@ -3,6 +3,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+/*************************************************************************
+Filename: sim.c
+Description: Implements a data structure called cache that
+represents the state of the cache. sim.c is responsbile for
+running the cache simulator after receiving a configuration file
+Author: Cole Johnosn
+Class: CSE 3031
+Instructor: Zheng
+Assignment: Lab #2
+Assigned: 2/22/2024
+Due: 3/7/2024
+************************************************************************/
+
 // some useful macros to quickly find block and set size in bytes
 #define BLOCK_SIZE sizeof(struct blocks_t *)
 #define SET_SIZE sizeof(struct set_t *)

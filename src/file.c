@@ -2,6 +2,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+/*************************************************************************
+Filename: file.c
+Description: Implements file writer and reader functions.
+This is used to read the cache config and the trace file.
+Author: Cole Johnosn
+Class: CSE 3031
+Instructor: Zheng
+Assignment: Lab #2
+Assigned: 2/22/2024
+Due: 3/7/2024
+************************************************************************/
 // max line for reading file
 #define MAX_LEN 128
 // bytes read from currently opened file

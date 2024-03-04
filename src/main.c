@@ -1,6 +1,17 @@
 #include "sim.h"
 #include <stdio.h>
 #include <stdlib.h>
+/*************************************************************************
+Filename: main.c
+Description: Contains main function that drivers the cache simulator.
+Author: Cole Johnosn
+Class: CSE 3031
+Instructor: Zheng
+Assignment: Lab #2
+Assigned: 2/22/2024
+Due: 3/7/2024
+************************************************************************/
+
 // configuration file is the first passed arg
 #define CONFIG_FILE 1
 // trace file is the second passed arg
