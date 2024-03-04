@@ -71,7 +71,10 @@ void strip_ext(char *fname) {
   }
 }
 
+// create the file name that we write the cache sim statistics to, should be
+// based on the instruction trace file name (e.g. gcc.trace -> gcc.out)
 void create_output_fname(char *fname, char *new_ext) {
+  // strip off any file extensions
   strip_ext(fname);
   // concatenate with the new file extension name
   strcat(fname, new_ext);

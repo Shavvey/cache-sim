@@ -15,7 +15,6 @@ Assignment: Lab #2
 Assigned: 2/22/2024
 Due: 3/7/2024
 ************************************************************************/
-
 // some useful macros to quickly find block and set size in bytes
 #define BLOCK_SIZE sizeof(struct blocks_t *)
 #define SET_SIZE sizeof(struct set_t *)
@@ -119,6 +118,7 @@ struct blocks_t *create_block(uint32_t addr) {
     block->next = NULL;
     block->addr = addr;
   } else {
+    // if malloc returns null, then dynamic memory allocation has failed
     perror("Error allocating memory for block");
   }
   return block;
@@ -127,7 +127,9 @@ struct blocks_t *create_block(uint32_t addr) {
 // two eviction policies are current implemented: FIFO and random
 void handle_eviction(struct set_t *set, enum rep_policy policy, uint32_t addr) {
   struct blocks_t *block = create_block(addr);
+  // integer to store random value generated, used for RANDOM eviction policy
   int r;
+  // tally the number of evicts
   EVICTS++;
   switch (policy) {
     // execute the FIFO eviction policy (remove first cache block and insert new
@@ -208,6 +210,9 @@ bool search_set(struct set_t *set, uint32_t addr) {
   // otherwise return false
   return 0;
 }
+// handle a cache miss by allocating memory for a new block that contains the
+// missed memory reference, either by filling a empty block in the set, or
+// evicting a previous block
 void handle_miss(struct set_t *set, struct cache_t cache_conf, uint32_t addr) {
   if (set->blocks == NULL) {
     set->blocks = create_block(addr);
@@ -231,15 +236,20 @@ void handle_miss(struct set_t *set, struct cache_t cache_conf, uint32_t addr) {
     handle_eviction(set, cache_conf.rep_policy, addr);
   }
 }
+
 // check to see if the policy allows current instruct type to be allocated
 bool check_policy(enum write_alloc policy, enum access_type type) {
   // if the write policy allos
   if (policy == NO && type == STORE) {
+    // if policy is no-write-allocate and store (a write), then we the cache
+    // policies do not always us to handle the miss, so we return false
     return false;
   } else {
     return true;
   }
 }
+// calcualte statistics detailed and send them to a .out file, based on the name
+// of the trace given
 void write_to_textfile(char *trace_fname) {
   int MISS_PENALTY = cache_conf.miss_penalty;
   // calculate the total hit rate
