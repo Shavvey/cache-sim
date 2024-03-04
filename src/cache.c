@@ -118,7 +118,7 @@ struct cache_addr_d calculate_cache_dimensions(struct cache_t cache) {
 void print_cache_dimensions(struct cache_addr_d addr_d) {
   printf("Number of bits for Tag: %u\n", addr_d.tag);
   printf("Number of bits for Set Index: %u\n", addr_d.set_index);
-  printf("Numeber of bits for Offset: %u\n", addr_d.offset);
+  printf("Number of bits for Offset: %u\n", addr_d.offset);
 }
 // get instruction from file, uses file_reader functions
 struct inst_t instruction_from_file(FILE *file) {
