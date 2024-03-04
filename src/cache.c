@@ -53,7 +53,7 @@ struct cache_t get_cache_config(char *fname) {
 // prints back the cache config, just for testing purposes
 void print_cache_config(struct cache_t *cache) {
   printf("Block size: %i Bytes\n", cache->block_size);
-  printf("N-way associativity; %i\n", cache->associativity);
+  printf("N-way associativity: %i\n", cache->associativity);
   printf("Total cache size: %i KB\n", cache->cache_size);
   switch (cache->rep_policy) {
   case RANDOM:
