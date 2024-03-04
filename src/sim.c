@@ -389,13 +389,22 @@ void cache_sim(char *trace_fname) {
   fclose(file);
   // print out a bunch a statistics i would like to see
   printf("INSTRUCTIONS READ: %d\n", MEM_INST_READ);
+  // total hits are calculated by finding store and load hits for the cache
   printf("HITS: %d\n", STORE_HIT + LOAD_HIT);
+  // total misses are calculated by finding store and load misses in the cache
   printf("MISSES: %d\n", STORE_MISS + LOAD_MISS);
+  // load misses tallied
   printf("LOAD MISSES: %d\n", LOAD_MISS);
+  // store misses tallied
   printf("STORE MISSES: %d\n", STORE_MISS);
+  // store hits taillied
   printf("STORE HITS: %d\n", STORE_HIT);
+  // load hits tallied
   printf("LOAD HITS: %d\n", LOAD_HIT);
+  // number of executed instructions inside the trace that are not memory
+  // references
   printf("NUMBER OF OTHER EXECUTED INSTRUCTIONS: %d\n", NUM_OTHER_INST);
+  // number of evicts
   printf("EVICTS: %d\n", EVICTS);
   // write the required stastics collected during the sim run
   write_to_textfile(trace_fname);
