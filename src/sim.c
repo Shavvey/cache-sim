@@ -18,7 +18,8 @@ Due: 3/7/2024
 // some useful macros to quickly find block and set size in bytes
 #define BLOCK_SIZE sizeof(struct blocks_t *)
 #define SET_SIZE sizeof(struct set_t *)
-#define HIT_TIME 1 // assume that the hit time is just one cycle
+#define HIT_TIME 1        // assume that the hit time is just one cycle
+#define OTHER_INST_TIME 1 // assume that all other instructions have a cost of 1
 // GLOBALS
 // cache configuration
 struct cache_t cache_conf;
@@ -245,6 +246,8 @@ bool check_policy(enum write_alloc policy, enum access_type type) {
     // policies do not always us to handle the miss, so we return false
     return false;
   } else {
+    // true otherwise, which mean either we have write-allocate or there must be
+    // a load instruction making the policy inconsequential
     return true;
   }
 }
@@ -262,15 +265,15 @@ void write_to_textfile(char *trace_fname) {
   float STORE_HIT_RATE = ((float)STORE_HIT / MEM_INST_READ) * 100;
   // the total run time in cycles (assume all other instructions have a CPI of 1
   // and that hit time is one cycle)
-  uint32_t TOTAL_RUN_TIME = (STORE_HIT + LOAD_HIT) +
+  uint32_t TOTAL_RUN_TIME = (STORE_HIT + LOAD_HIT) * HIT_TIME +
                             (STORE_MISS + LOAD_MISS) * cache_conf.miss_penalty +
-                            NUM_OTHER_INST;
+                            NUM_OTHER_INST * OTHER_INST_TIME;
   // average memory latency is (hit_time) + (miss_rate)*(miss_time)
   // NOTE:
   // assumes hit time is one cycle
   float AVERAGE_MEM_LATENCY =
-      HIT_TIME + ((float)MISS_PENALTY / 100 *
-                  TOTAL_MISS_RATE); // inverse of hit rate is miss rate
+      HIT_TIME +
+      (MISS_PENALTY * TOTAL_MISS_RATE); // inverse of hit rate is miss rate
   // get the size of the trace name
   int size = strlen(trace_fname);
   char name[size];
