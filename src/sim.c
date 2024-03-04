@@ -307,15 +307,14 @@ void write_to_textfile(char *trace_fname) {
 // helper function to free the linked list of block after running the sim
 void free_cache_block(struct blocks_t *block) {
   // repeat this until we reach last item in the linked list
-  while (block->next != NULL) {
-    struct blocks_t *prev = block;
+  struct blocks_t *head = block;
+  while (head != NULL) {
+    struct blocks_t *prev = head;
     // go to next block
-    block = block->next;
+    head = head->next;
     // free to previous block
     free(prev);
   }
-  // free the last block
-  free(block);
 }
 
 // helper function to clear cache datat structure after use
