@@ -3,7 +3,7 @@
 #include <stdlib.h>
 /*************************************************************************
 Filename: main.c
-Description: Contains main function that drivers the cache simulator.
+Description: Contains main function that drives the cache simulator.
 Author: Cole Johnosn
 Class: CSE 3031
 Instructor: Zheng
