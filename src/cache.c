@@ -107,7 +107,9 @@ int find_pow2(int val, int iter) {
 
 // determine the cache address dimnesions based on cache config
 struct cache_addr_d calculate_cache_dimensions(struct cache_t cache) {
+  // create new address dimension struct
   struct cache_addr_d addr_d;
+  // calc offset by finding power of 2 that equals the cache size
   addr_d.offset = find_pow2(cache.block_size, 0);
   addr_d.set_index = find_pow2(
       cache.cache_size * 1024 / (cache.block_size * cache.associativity), 0);

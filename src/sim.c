@@ -1,3 +1,4 @@
+#include "sim.h"
 #include "cache.h"
 #include "file.h"
 #include <stdlib.h>
@@ -40,26 +41,6 @@ static int NUM_OTHER_INST = 0;
 static int MEM_INST_READ = 0;
 // track evicts too
 static int EVICTS = 0;
-// struct to represent each block in the set
-struct blocks_t {
-  // holds the 32 bit address
-  int32_t addr;
-  // also contains a reference to the next block
-  struct blocks_t *next;
-};
-// each set holds a given amount of cache blocks, given by associativity value
-struct set_t {
-  // each set is represented as a chain of cache blocks
-  struct blocks_t *blocks;
-  // how many cache blocks are currently in the set
-  uint8_t length;
-};
-
-// cache is just an array of sets
-struct cache {
-  struct set_t *set;
-};
-
 // record hit  depending on what type it is
 void record_hit(enum access_type type) {
   if (type == LOAD) {
@@ -112,6 +93,7 @@ void load_cache_config(char *config_fname) {
   printf("Number of sets: %d\n", num_sets);
   printf("Number of blocks: %d\n", num_blocks);
 }
+// create each cache block inside each set using dynamoc allocation
 struct blocks_t *create_block(uint32_t addr) {
   struct blocks_t *block = (struct blocks_t *)malloc(BLOCK_SIZE);
   if (block != NULL) {
@@ -255,8 +237,11 @@ bool check_policy(enum write_alloc policy, enum access_type type) {
 // of the trace given
 void write_to_textfile(char *trace_fname) {
   int MISS_PENALTY = cache_conf.miss_penalty;
-  // calculate the total hit rate
+  // calculate the total hit rate, sum of all cache hit divided by total memory
+  // references read from trace, then multiply by 100
   float TOTAL_HIT_RATE = ((float)(STORE_HIT + LOAD_HIT) / MEM_INST_READ) * 100;
+  // calculate the total miss rate, sum all cache misses divided by total memory
+  // refereences read from trace, then multiply by 100
   float TOTAL_MISS_RATE =
       ((float)(STORE_MISS + LOAD_MISS) / MEM_INST_READ) * 100;
   // calculate percentage of load hits
@@ -270,7 +255,7 @@ void write_to_textfile(char *trace_fname) {
                             NUM_OTHER_INST * OTHER_INST_TIME;
   // average memory latency is (hit_time) + (miss_rate)*(miss_time)
   // NOTE:
-  // assumes hit time is one cycle
+  // assumes hit time is one cycle, latency is the average memory access rate
   float AVERAGE_MEM_LATENCY =
       HIT_TIME +
       (MISS_PENALTY * TOTAL_MISS_RATE); // inverse of hit rate is miss rate
@@ -283,7 +268,7 @@ void write_to_textfile(char *trace_fname) {
   char *f = name;
   // strip path info inside the name if there is any
   char *fname = strip_path_info(f);
-  file = get_file(fname, "w");
+  file = get_file(fname, "w"); // open file pointer, give write priveleges
   // begin writing information to the textfile
   char buffer[50];
   snprintf(buffer, 50, "Total hit rate is: %f %%\n", TOTAL_HIT_RATE);
@@ -347,6 +332,7 @@ void cache_sim(char *trace_fname) {
       cache[i].set->blocks = NULL;
     }
   }
+  // get the file pointer to the trace file
   FILE *trace_file = get_file(trace_fname, "r");
   int flag = 1;
   // whiles bytes have been successfully read and the file has not ended, keep
