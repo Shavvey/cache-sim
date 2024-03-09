@@ -59,7 +59,54 @@ main directory (the directory with the README and makefile).
 
 ```sh
 make # make project into final executable
-make test # test exec using sample.conf and
+make test # test exec using sample.conf and gcc.trace
 ```
 
 the `make test` rule will use the exec to load in the `sample.conf` and `gcc.trace` as sample output for the program.
+
+### Sample Output
+
+Using the `make test` makefile command, here's a sample of the the standard output when running the program:
+
+```sh
+make test
+./cache-sim ./sample.conf ./traces/gcc.trace
+Block size: 8 Bytes
+N-way associativity: 1
+Total cache size: 16 KB
+Eviction policy: FIFO
+Cycle penalty for cache miss: 100
+Writes allocated inside cache: YES (write-allocate)
+Number of bits for Tag: 18
+Number of bits for Set Index: 11
+Number of bits for Offset: 3
+Number of sets: 2048
+Number of blocks: 2048
+INSTRUCTIONS READ: 515683
+HITS: 489691
+MISSES: 25992
+LOAD MISSES: 7272
+STORE MISSES: 18720
+STORE HITS: 178766
+LOAD HITS: 310925
+NUMBER OF OTHER EXECUTED INSTRUCTIONS: 1024482
+EVICTS: 23944
+Total hit rate is: 94.959694%
+Load hit rate is: 60.293823%
+Store hit rate is: 34.665871%
+Total run time is: 4113373 cycles
+Average memory access latency: 6.040306 cycles
+```
+
+The program will also output a file that shows the main statistics of the cache
+(hit rate, miss rate, and average memory latency), this file is always the name of the trace
+with a `.out` file extension instead of `.trace`. For example, running `gcc.trace` with `sample.conf`
+will produce this output inside the `gcc.out` file, in the main directory:
+
+```
+Total hit rate is: 94.959694 %
+Load hit rate is: 60.293823 %
+Store hit rate is: 34.665871 %
+Total run time is: 4113373 cycles
+Average memory access latency: 6.040306 cycles
+```
