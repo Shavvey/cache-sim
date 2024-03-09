@@ -257,8 +257,8 @@ void write_to_textfile(char *trace_fname) {
   // NOTE:
   // assumes hit time is one cycle, latency is the average memory access rate
   float AVERAGE_MEM_LATENCY =
-      HIT_TIME +
-      (MISS_PENALTY * TOTAL_MISS_RATE); // inverse of hit rate is miss rate
+      HIT_TIME + (MISS_PENALTY * TOTAL_MISS_RATE /
+                  100); // inverse of hit rate is miss rate
   // get the size of the trace name
   int size = strlen(trace_fname);
   char name[size];

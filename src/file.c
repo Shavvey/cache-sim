@@ -33,6 +33,8 @@ FILE *get_file(char *fname, char *mode) {
 // handle byte read error file ther are any
 void handle_byte_err(ssize_t bytes) {
   if (bytes == -1) {
+    // print out an error if we encountered a error when reading bytes from a
+    // file
     perror("Problem occured reading a byte\n");
   }
 }
