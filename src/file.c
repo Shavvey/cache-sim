@@ -49,6 +49,8 @@ const char *read_line(FILE *file) {
     // exit out of program
     exit(EXIT_FAILURE);
   }
+  // put the line of text in the file into line_buf, also return the number of
+  // bytes read to var bytes
   bytes = getline(&line_buf, &len, file);
   return line_buf;
 }

@@ -19,8 +19,9 @@ Due: 3/7/2024
 // some useful macros to quickly find block and set size in bytes
 #define BLOCK_SIZE sizeof(struct blocks_t *)
 #define SET_SIZE sizeof(struct set_t *)
-#define HIT_TIME 1        // assume that the hit time is just one cycle
-#define OTHER_INST_TIME 1 // assume that all other instructions have a cost of 1
+#define HIT_TIME 1 // assume that the hit time is just one cycle
+// assume that all other instructions have a cost of 1 cycle
+#define OTHER_INST_TIME 1
 // GLOBALS
 // cache configuration
 struct cache_t cache_conf;
