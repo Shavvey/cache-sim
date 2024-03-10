@@ -52,6 +52,7 @@ struct cache_t get_cache_config(char *fname) {
 
 // prints back the cache config, just for testing purposes
 void print_cache_config(struct cache_t *cache) {
+  printf("===CACHE CONFIGURATION===\n");
   printf("Block size: %i Bytes\n", cache->block_size);
   printf("N-way associativity: %i\n", cache->associativity);
   printf("Total cache size: %i KB\n", cache->cache_size);
@@ -117,7 +118,10 @@ struct cache_addr_d calculate_cache_dimensions(struct cache_t cache) {
   return addr_d;
 }
 
+// prints out the cache address dimensions (how the 32 bit address is decomposed
+// into tag, set index, and block offset bits)
 void print_cache_dimensions(struct cache_addr_d addr_d) {
+  printf("===CACHE ADDRESS DIMENSIONS===\n");
   printf("Number of bits for Tag: %u\n", addr_d.tag);
   printf("Number of bits for Set Index: %u\n", addr_d.set_index);
   printf("Number of bits for Offset: %u\n", addr_d.offset);

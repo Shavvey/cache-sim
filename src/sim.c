@@ -376,6 +376,7 @@ void cache_sim(char *trace_fname) {
   }
   // close file used to read instructions
   fclose(file);
+  printf("===CACHE SIM STATISTICS===\n");
   // print out a bunch a statistics i would like to see
   printf("INSTRUCTIONS READ: %d\n", MEM_INST_READ);
   // total hits are calculated by finding store and load hits for the cache
