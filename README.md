@@ -68,20 +68,23 @@ the `make test` rule will use the exec to load in the `sample.conf` and `gcc.tra
 
 Using the `make test` makefile command, here's a sample of the the standard output when running the program:
 
-```sh
+```
 make test
 ./cache-sim ./sample.conf ./traces/gcc.trace
+===CACHE CONFIGURATION===
 Block size: 8 Bytes
 N-way associativity: 1
 Total cache size: 16 KB
 Eviction policy: FIFO
 Cycle penalty for cache miss: 100
 Writes allocated inside cache: YES (write-allocate)
+===CACHE ADDRESS DIMENSIONS===
 Number of bits for Tag: 18
 Number of bits for Set Index: 11
 Number of bits for Offset: 3
 Number of sets: 2048
 Number of blocks: 2048
+===CACHE SIM STATISTICS===
 INSTRUCTIONS READ: 515683
 HITS: 489691
 MISSES: 25992
