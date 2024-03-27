@@ -18,7 +18,8 @@ Due: 3/7/2024
 #define TRACE_FILE 2
 
 int main(int argc, char *argv[]) {
-  // argc will track to see if a arguments have been passed
+  // argc will track to the amount of arguments supplied to us
+  // args expected to be the passed before executed include following
   // 1: name of textfile
   // 2: name of cache config file
   // 3: name of load-store instruction trace file

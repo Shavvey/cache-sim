@@ -91,7 +91,7 @@ char *strip_path_info(char *fname) {
   int i = 0;
   int index = 0;
   for (char *ps = fname; *ps != '\0'; ps++) {
-    // find the last instance of the '\' char
+    // find the last instance of the '/' char
     if (*ps == '/') {
       index = i;
     }
