@@ -89,6 +89,9 @@ bool check_2pow(float val) {
   } else if (val < 1) {
     return false;
   } else {
+    // recurse by checking the value divided by 2
+    // eventually reaching are base case, which is that
+    // we will either reach a value of 1, or some value in [0,1)
     return check_2pow(val / 2);
   }
 }
@@ -102,6 +105,7 @@ int find_pow2(int val, int iter) {
   } else {
     // increment iteration count
     iter++;
+    // find how many times we can divide the value by 2
     return find_pow2(val / 2, iter);
   }
 }
