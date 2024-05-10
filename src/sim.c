@@ -22,6 +22,7 @@ Due: 3/7/2024
 #define HIT_TIME 1 // assume that the hit time is just one cycle
 // assume that all other instructions have a cost of 1 cycle
 #define OTHER_INST_TIME 1
+#define BUFFER_SIZE 50
 // GLOBALS
 // cache configuration
 struct cache_t cache_conf;
@@ -246,9 +247,9 @@ void write_to_textfile(char *trace_fname) {
   float TOTAL_MISS_RATE =
       ((float)(STORE_MISS + LOAD_MISS) / MEM_INST_READ) * 100;
   // calculate percentage of load hits
-  float LOAD_HIT_RATE = ((float)LOAD_HIT / MEM_INST_READ) * 100;
+  float LOAD_HIT_RATE = ((float)LOAD_HIT / (LOAD_HIT + LOAD_MISS)) * 100;
   // calcualte percentage of stoer hits
-  float STORE_HIT_RATE = ((float)STORE_HIT / MEM_INST_READ) * 100;
+  float STORE_HIT_RATE = ((float)STORE_HIT / (STORE_HIT + STORE_MISS)) * 100;
   // the total run time in cycles (assume all other instructions have a CPI of 1
   // and that hit time is one cycle)
   uint32_t TOTAL_RUN_TIME = (STORE_HIT + LOAD_HIT) * HIT_TIME +
@@ -271,16 +272,17 @@ void write_to_textfile(char *trace_fname) {
   char *fname = strip_path_info(f);
   file = get_file(fname, "w"); // open file pointer, give write priveleges
   // begin writing information to the textfile
-  char buffer[50];
-  snprintf(buffer, 50, "Total hit rate is: %f %%\n", TOTAL_HIT_RATE);
+  char buffer[BUFFER_SIZE];
+  snprintf(buffer, BUFFER_SIZE, "Total hit rate is: %f %%\n", TOTAL_HIT_RATE);
   write_line(file, buffer);
-  snprintf(buffer, 50, "Load hit rate is: %f %%\n", LOAD_HIT_RATE);
+  snprintf(buffer, BUFFER_SIZE, "Load hit rate is: %f %%\n", LOAD_HIT_RATE);
   write_line(file, buffer);
-  snprintf(buffer, 50, "Store hit rate is: %f %%\n", STORE_HIT_RATE);
+  snprintf(buffer, BUFFER_SIZE, "Store hit rate is: %f %%\n", STORE_HIT_RATE);
   write_line(file, buffer);
-  snprintf(buffer, 50, "Total run time is: %u cycles\n", TOTAL_RUN_TIME);
+  snprintf(buffer, BUFFER_SIZE, "Total run time is: %u cycles\n",
+           TOTAL_RUN_TIME);
   write_line(file, buffer);
-  snprintf(buffer, 50, "Average memory access latency: %f cycles\n",
+  snprintf(buffer, BUFFER_SIZE, "Average memory access latency: %f cycles\n",
            AVERAGE_MEM_LATENCY);
   write_line(file, buffer);
   // print out the statistics to stdout because why not
