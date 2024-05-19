@@ -3,5 +3,6 @@
 *.o
 .pdf
 src/*.o
+src/*.gch
 # ignore output files for now
 *.out
